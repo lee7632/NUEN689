@@ -102,7 +102,7 @@ def return_boundary_k(coor_file_base, patch_name, data):
 # Specify where the path to the .dat file you want to use
 # here as the data_file variable
 #===============================================================
-data_file = '/home/josh/Documents/academic/nuen689_cfd/project/ecamp_docs/Vel_Inlet_X-50_u10ms.dat'
+data_file = '/home/josh/Documents/academic/nuen689_cfd/project/ecamp_docs/Vel_Inlet_X-50_u06ms.dat'
 #
 # This is copied from the .dat file header
 VARIABLES = ("x", "y", "z", "Vx", "U_x95", "Vy", "U_y95", "Vz", "U_z95", "RMSVx", "RMSVxUpper", "RMSVxLower", "RMSVy", "RMSVyUpper", "RMSVyLower", "RMSVz", "RMSVzUpper", "RMSVzLower", "k", "kLOWER", "kUPPER")
@@ -139,7 +139,7 @@ df_bottom = pd.concat( slice_bottom )
 # inlet1 is the top face
 #
 patch_name = 'inlet1'
-base_path = '/home/josh/Documents/academic/nuen689_cfd/project/BasicCase2/BasicCase2/0'
+base_path = '/home/josh/Documents/academic/nuen689_cfd/project/base_bouyant/diff_t/0'
 lines = return_boundary_velocities(base_path, patch_name, df_top)
 
 
@@ -175,31 +175,41 @@ k_vals = return_boundary_k(base_path, patch_name, df_top)
 #
 L = 0.0035
 cmu = 0.09
+Dh = 2*0.025*0.05/(0.05+0.025)
 TINY = 1e-10
 SMALL = 1e-7
 #
 with open(patch_name+'_omega.out',mode='w') as omega_out, \
-     open(patch_name+'_k.out',mode='w') as k_out:
+     open(patch_name+'_k.out',mode='w') as k_out, \
+     open(patch_name+'_eps.out',mode='w') as eps_out:
     omega_out.write('value nonuniform List<scalar>\n')
     omega_out.write(str( len(k_vals) )+'\n')
     omega_out.write('(\n')
     k_out.write('value nonuniform List<scalar>\n')
     k_out.write(str( len(k_vals) )+'\n')
-    k_out.write('(\n')    
+    k_out.write('(\n')  
+    eps_out.write('value nonuniform List<scalar>\n')
+    eps_out.write(str( len(k_vals) )+'\n')
+    eps_out.write('(\n')       
     for k in k_vals:
         #
         if k < TINY:
             k = SMALL
         #            
-        omega = np.sqrt(k)/L/cmu
+        omega = np.sqrt(k)/Dh/0.07/cmu**(1/4)
         line = '%.8f'%omega+'\n'
         omega_out.write(line)
         #
         line = '%.8f'%k+'\n'
-        k_out.write(line)        
+        k_out.write(line)
+        #
+        eps = 0.09**(3./4)*k**(3./2)/Dh/0.07
+        line = '%.8f'%eps+'\n'
+        eps_out.write(line)
         
     omega_out.write(');\n')
     k_out.write(');\n')
+    eps_out.write(');\n')
 #
 #
 patch_name = 'inlet2'
@@ -207,25 +217,33 @@ k_vals = return_boundary_k(base_path, patch_name, df_bottom)
 #
 #
 with open(patch_name+'_omega.out',mode='w') as omega_out, \
-     open(patch_name+'_k.out',mode='w') as k_out:
+     open(patch_name+'_k.out',mode='w') as k_out, \
+     open(patch_name+'_eps.out',mode='w') as eps_out:
     omega_out.write('value nonuniform List<scalar>\n')
     omega_out.write(str( len(k_vals) )+'\n')
     omega_out.write('(\n')
     k_out.write('value nonuniform List<scalar>\n')
     k_out.write(str( len(k_vals) )+'\n')
-    k_out.write('(\n')    
+    k_out.write('(\n')  
+    eps_out.write('value nonuniform List<scalar>\n')
+    eps_out.write(str( len(k_vals) )+'\n')
+    eps_out.write('(\n')       
     for k in k_vals:
         #
         if k < TINY:
-            k = SMALL  
+            k = SMALL
         #            
-        omega = np.sqrt(k)/L/cmu
+        omega = np.sqrt(k)/Dh/0.07/cmu**(1/4)
         line = '%.8f'%omega+'\n'
         omega_out.write(line)
-        #      
         #
         line = '%.8f'%k+'\n'
-        k_out.write(line)        
+        k_out.write(line)
+        #
+        eps = 0.09**(3./4)*k**(3./2)/Dh/0.07
+        line = '%.8f'%eps+'\n'
+        eps_out.write(line)
         
     omega_out.write(');\n')
     k_out.write(');\n')
+    eps_out.write(');\n')
