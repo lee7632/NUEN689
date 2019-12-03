@@ -1,0 +1,11 @@
+Item	Short description	Information
+1	Code used	OpenFOAM7
+2	Control Volumes	1150000
+3	Spatial differencing scheme	2nd-Bounded gauss linear upwind unlimited
+4	Convergence criteria	10e-5
+5	Turbulence model	k-omega SST
+6	Wall treatment	wall-resolved
+7	CPU time	1725
+8	Total number of simluations	23
+9	UQ method	Latin hypercube sampling, GCI
+10	Mapping method of the experimental inlet boundary condition	Linear interpolation
